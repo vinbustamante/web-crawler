@@ -7,6 +7,7 @@ import { ErrorEnum } from "../enum/ErrorEnum";
 import { IReflectionService } from "../services/IReflectionService";
 import { types as serviceTypes } from "../services/types";
 import { AnnotationEnum } from "../decorator/AnnotationEnum";
+// import { LinkModel } from "./models/LinkModel";
 
 @injectable()
 export abstract class RepositoryBase {
@@ -20,6 +21,13 @@ export abstract class RepositoryBase {
     const klass = this._getModelClass(modelClass);
 
     const upsertOption = this._getUpsertOptions(klass);
+    // if (klass === LinkModel) {
+    //   console.log("*********** upsertOption *******************");
+    //   console.log("upsertOption: ", upsertOption);
+    //   console.log("modelValue: ", modelValue);
+    //   console.log("upsert function: ", klass.upsert);
+    //   console.log("******************************");
+    // }
     const [instance] = await klass.upsert(modelValue, upsertOption);
     return this.toPlainObject(instance);
   }

@@ -38,7 +38,7 @@ export class LinkModel extends Model {
   })
   @ForeignKey(() => DomainModel)
   @DbUpsertFieldOption(DatabaseEnum.Tables.Link.Fields.DomainId)
-  DomainId: number;
+  domainId: number;
 
   @Column({
     type: DataType.STRING(3000),

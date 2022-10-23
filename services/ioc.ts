@@ -2,9 +2,11 @@ import { Container } from "inversify";
 import { IDomainService } from "./IDomainService";
 import { IFlowService } from "./IFlowService";
 import { IHttpService } from "./IHttpService";
+import { ILinkService } from "./ILinkService";
 import { DomainService } from "./implementation/DomainService";
 import { FlowService } from "./implementation/FlowService";
 import { HttpService } from "./implementation/HttpService";
+import { LinkService } from "./implementation/LinkService";
 import { ReflectionService } from "./implementation/ReflectionService";
 import { UtilService } from "./implementation/UtilService";
 import { WebBrowserService } from "./implementation/WebBrowserService";
@@ -41,6 +43,10 @@ export async function configureServices(
   container
     .bind<IDomainService>(serviceTypes.IDomainService)
     .to(DomainService)
+    .inSingletonScope();
+  container
+    .bind<ILinkService>(serviceTypes.ILinkService)
+    .to(LinkService)
     .inSingletonScope();
 
   return container;

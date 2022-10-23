@@ -8,6 +8,7 @@ import { CommandEnum } from "enum/CommandEnum";
 import { CommandControllerParams } from "types/CommandControllerParams";
 import { IDomainService } from "../services/IDomainService";
 import { IWebBrowserService } from "../services/IWebBrowserService";
+import { ILinkService } from "../services/ILinkService";
 
 @mapCommand(CommandEnum.crawl)
 @injectable()
@@ -24,21 +25,24 @@ export class CrawlController {
   @inject(serviceTypes.IDomainService)
   private _domainService: IDomainService;
 
+  @inject(serviceTypes.ILinkService)
+  private _linkService: ILinkService;
+
   async execute(request: CommandControllerParams) {
     const { queryValue: url } = request;
-    await this._getDomainInfo(url);
+    const domain = await this._getDomainInfo(url);
     const page = await this._httpService.open(url);
     const self = this;
     // @ts-ignore
     return new Promise((resolve, reject) => {
       let lastPageLinkCount = 0;
       (async function loadMore() {
+        // todo: need to optimise not to requery the whole page
         const links = await self._webBrowserService.getLinks(page);
         if (links.length !== lastPageLinkCount) {
           lastPageLinkCount = links.length;
-          console.log("******************************");
-          console.log("ready save urls");
-          console.log("******************************");
+          // todo: optomise it by not removing the old link
+          await self._linkService.bulkSave(domain.domainId, links);
         }
       })();
     });
@@ -53,7 +57,10 @@ export class CrawlController {
 
   private async _getDomainInfo(url: string) {
     const urlInfo = this._utilService.parseUrl(url);
-    const domain = await this._domainService.save(urlInfo.host);
+    let domain = await this._domainService.save(urlInfo.host);
+    if (domain.domainId === 0) {
+      domain = await this._domainService.getByName(urlInfo.host);
+    }
     return domain;
   }
 }

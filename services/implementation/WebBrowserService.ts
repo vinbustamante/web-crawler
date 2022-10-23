@@ -37,7 +37,7 @@ export class WebBrowserService
     // console.log("last url: ", await this._getUrlFromDataContainer([lastNode]));
 
     // simular load more data
-    await this._loadMoreData(page);
+    // await this._loadMoreData(page);
 
     // console.log("******************************");
     // console.log("lastNode: ", await this._getUrlFromDataContainer([lastNode]));

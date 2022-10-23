@@ -21,9 +21,9 @@ export async function configureRepositories(
     logging: false,
   });
   database.addModels([DomainModel, LinkModel]);
-  await database.sync({
-    alter: true,
-  });
+  // await database.sync({
+  //   alter: true,
+  // });
 
   container
     .bind<IDomainRepository>(repoTypes.IDomainRepository)
