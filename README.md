@@ -40,3 +40,5 @@ Use [Sqlite Studio](https://sqlitestudio.pl/ "link title") to open the data/cont
 # to get the list of collected numbers
 select * from contact
 ```
+
+![Serverless Architecture](assets/sqlite-studio.png)
