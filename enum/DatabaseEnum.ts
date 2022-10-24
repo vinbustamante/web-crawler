@@ -17,6 +17,15 @@ export const DatabaseEnum = {
         IsProcessed: "is_processed",
         IsLocked: "is_locked",
         LockedDate: "lock_date",
+        LockId: "lock_id",
+      },
+    },
+    Contact: {
+      name: "contact",
+      Fields: {
+        ContactId: "contact_id",
+        LinkId: "link_id",
+        ContactNumber: "contact_number",
       },
     },
   },

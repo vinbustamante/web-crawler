@@ -7,7 +7,7 @@ import { DatabaseEnum } from "../../enum/DatabaseEnum";
 
 @injectable()
 export class DomainRepository
-  extends RepositoryBase
+  extends RepositoryBase<DomainModel>
   implements IDomainRepository
 {
   getModel(): any {

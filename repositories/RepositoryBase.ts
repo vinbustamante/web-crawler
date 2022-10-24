@@ -1,20 +1,31 @@
 import { inject, injectable } from "inversify";
-import { Model } from "sequelize-typescript";
+import { Model, Sequelize } from "sequelize-typescript";
 import * as _ from "lodash";
+import { FindOptions, QueryOptions } from "sequelize";
 import { UpsertParamModel } from "./models/UpsertParamModel";
 import { RepositoryException } from "./exception/RepositoryException";
 import { ErrorEnum } from "../enum/ErrorEnum";
 import { IReflectionService } from "../services/IReflectionService";
 import { types as serviceTypes } from "../services/types";
 import { AnnotationEnum } from "../decorator/AnnotationEnum";
+import { types as repoTypes } from "../repositories/types";
 // import { LinkModel } from "./models/LinkModel";
 
 @injectable()
-export abstract class RepositoryBase {
+export abstract class RepositoryBase<TModel extends Model> {
   @inject(serviceTypes.IReflectionService)
   protected _reflectionService: IReflectionService;
 
+  @inject(repoTypes.Database)
+  private readonly _sequelize: Sequelize;
+
   abstract getModel(): any;
+
+  async findOne(options: FindOptions, modelClass?: any): Promise<TModel> {
+    const model = this._getModelClass(modelClass);
+    const data = await model.findOne(options);
+    return this.toPlainObject(data);
+  }
 
   async upsert(params: UpsertParamModel) {
     const { modelValue, modelClass } = params;
@@ -42,6 +53,13 @@ export abstract class RepositoryBase {
     } else {
       return null;
     }
+  }
+
+  executeQuery<TReturn>(
+    query: string,
+    options?: QueryOptions
+  ): Promise<TReturn> {
+    return this._sequelize.query(query, options) as any;
   }
 
   private _getModelClass(modelClass: any, required = true) {

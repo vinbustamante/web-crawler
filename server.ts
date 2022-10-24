@@ -6,6 +6,7 @@ import { configureServices } from "./services/ioc";
 import { IUtilService } from "./services/IUtilService";
 import { types as serviceTypes } from "./services/types";
 import { configureRepositories } from "./repositories/ioc";
+import { IProcessService } from "./services/IProcessService";
 
 const argv: any = yargs
   .usage("Usage: $0 <command> [options]")
@@ -34,8 +35,14 @@ const queryField = argv.field;
   await configureCommandControllers(container);
 
   const utilService = container.get<IUtilService>(serviceTypes.IUtilService);
+  const processService = container.get<IProcessService>(
+    serviceTypes.IProcessService
+  );
   const commandController = utilService.getControllerByCommand(command);
   if (commandController) {
+    // todo: port to out process for scalability
+    processService.collect();
+
     commandController
       .execute({
         cmd: command,

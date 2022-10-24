@@ -20,9 +20,6 @@ export class LinkService extends BaseService implements ILinkService {
   }
 
   async save(link: LinkDto): Promise<LinkDto> {
-    console.log("*********** link dto*******************");
-    console.log(link);
-    console.log("******************************");
     const linkModel = await this._linkRepository.upsert({
       modelValue: link,
     });
@@ -38,6 +35,14 @@ export class LinkService extends BaseService implements ILinkService {
       linkDto.isProcessed = false;
       return this.save(linkDto);
     });
-    console.log("done processing links");
+  }
+
+  async getByLockId(lockId: string): Promise<LinkDto> {
+    const linkModel = await this._linkRepository.getByLockId(lockId);
+    return super.toDto(linkModel);
+  }
+
+  lockFirstNonProcessedRecord(lockId: string): Promise<void> {
+    return this._linkRepository.lockFirstNonProcessedRecord(lockId);
   }
 }

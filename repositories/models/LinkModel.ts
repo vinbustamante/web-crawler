@@ -70,4 +70,11 @@ export class LinkModel extends Model {
 
   @BelongsTo(() => DomainModel)
   domain: DomainModel;
+
+  @Column({
+    type: DataType.STRING(3000),
+    field: DatabaseEnum.Tables.Link.Fields.LockId,
+    allowNull: true,
+  })
+  lockId: string;
 }
