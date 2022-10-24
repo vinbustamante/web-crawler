@@ -1,6 +1,7 @@
 export const types = {
   Container: Symbol.for("ioc-container"),
   IHttpService: Symbol.for("IHttpService"),
+  ILogService: Symbol.for("ILogService"),
   IWebBrowserService: Symbol.for("IWebBrowserService"),
   IUtilService: Symbol.for("IUtilService"),
   IReflectionService: Symbol.for("IReflectionService"),

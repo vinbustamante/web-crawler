@@ -4,11 +4,13 @@ import { IDomainService } from "./IDomainService";
 import { IFlowService } from "./IFlowService";
 import { IHttpService } from "./IHttpService";
 import { ILinkService } from "./ILinkService";
+import { ILogService } from "./ILogService";
 import { ContactService } from "./implementation/ContactService";
 import { DomainService } from "./implementation/DomainService";
 import { FlowService } from "./implementation/FlowService";
 import { HttpService } from "./implementation/HttpService";
 import { LinkService } from "./implementation/LinkService";
+import { LogService } from "./implementation/LogService";
 import { ProcessService } from "./implementation/ProcessService";
 import { QueueService } from "./implementation/QueueService";
 import { ReflectionService } from "./implementation/ReflectionService";
@@ -28,6 +30,11 @@ export async function configureServices(
   container: Container
 ): Promise<Container> {
   container.bind<Container>(serviceTypes.Container).toConstantValue(container);
+
+  container
+    .bind<ILogService>(serviceTypes.ILogService)
+    .to(LogService)
+    .inSingletonScope();
   container
     .bind<IFlowService>(serviceTypes.IFlowService)
     .to(FlowService)

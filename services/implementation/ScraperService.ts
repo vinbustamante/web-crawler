@@ -5,11 +5,27 @@ import { BaseService } from "./BaseService";
 import { types as serviceTypes } from "../types";
 import { IHttpService } from "../IHttpService";
 import { Page } from "puppeteer";
+import { ILinkService } from "../ILinkService";
+import { IWebBrowserService } from "../IWebBrowserService";
+import { ILogService } from "../ILogService";
+import { IDomainService } from "../IDomainService";
 
 @injectable()
 export class ScraperService extends BaseService implements IScraperService {
   @inject(serviceTypes.IHttpService)
   private readonly _httpService: IHttpService;
+
+  @inject(serviceTypes.ILinkService)
+  private _linkService: ILinkService;
+
+  @inject(serviceTypes.IWebBrowserService)
+  private readonly _webBrowserService: IWebBrowserService;
+
+  @inject(serviceTypes.ILogService)
+  private _logService: ILogService;
+
+  @inject(serviceTypes.IDomainService)
+  private _domainService: IDomainService;
 
   getDto() {
     return ContactDto;
@@ -20,7 +36,7 @@ export class ScraperService extends BaseService implements IScraperService {
     const contactDto = new ContactDto();
     let page: Page | null = null;
     try {
-      console.log("processing: ", url);
+      await this._logService.info(`processing: ${url}`);
       page = await this._httpService.open(url);
       const allResultsSelector = "img[src$='white-phone.svg']";
       await page.waitForSelector(allResultsSelector);
@@ -35,9 +51,26 @@ export class ScraperService extends BaseService implements IScraperService {
         }
       }
     } finally {
+      await this._saveChildLinks(page, url);
       page?.close();
     }
 
     return contactDto;
+  }
+
+  private async _saveChildLinks(page: Page, url): Promise<void> {
+    try {
+      await this._logService.info(`collecting child links from ${url}`);
+      const domainInfo = await this._domainService.getFirstRecord();
+      if (domainInfo && domainInfo.domainId) {
+        const urls = await this._webBrowserService.getLinks(page);
+        if (urls && urls.length) {
+          await this._logService.info("saving child links");
+          await this._linkService.bulkSave(domainInfo.domainId, urls);
+        }
+      }
+    } catch (err) {
+      await this._logService.error(err);
+    }
   }
 }

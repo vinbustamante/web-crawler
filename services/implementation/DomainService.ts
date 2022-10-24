@@ -27,4 +27,9 @@ export class DomainService extends BaseService implements IDomainService {
     });
     return this.toDto(domainModel);
   }
+
+  async getFirstRecord(): Promise<DomainDto> {
+    const domainModel = await this._domainRepository.getFirstRecord();
+    return super.toDto(domainModel);
+  }
 }

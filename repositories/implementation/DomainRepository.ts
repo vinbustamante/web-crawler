@@ -21,4 +21,8 @@ export class DomainRepository
     );
     return data as any;
   }
+
+  async getFirstRecord(): Promise<DomainModel> {
+    return super.findOne({});
+  }
 }

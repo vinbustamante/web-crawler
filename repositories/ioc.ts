@@ -17,7 +17,7 @@ export async function configureRepositories(
   container: Container
 ): Promise<Container> {
   // todo: make the db connection dynamic by accepting a params from terminal or get it from config
-  const dbFile = path.join(process.cwd(), "./data/test.db");
+  const dbFile = path.join(process.cwd(), "./data/contact.db");
   const database = new Sequelize({
     dialect: "sqlite",
     storage: dbFile,

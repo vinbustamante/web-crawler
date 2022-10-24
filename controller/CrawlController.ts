@@ -41,18 +41,13 @@ export class CrawlController {
         const links = await self._webBrowserService.getLinks(page);
         if (links.length !== lastPageLinkCount) {
           lastPageLinkCount = links.length;
-          // todo: optomise it by not removing the old link
+          // todo: optimize it by not removing the old link
           await self._linkService.bulkSave(domain.domainId, links);
+
+          // todo: click load more
         }
       })();
     });
-
-    // return Promise.resolve(url);
-    // return new Promise((resolve, reject) => {
-    //   (function loadMore() {
-    //     //
-    //   })();
-    // });
   }
 
   private async _getDomainInfo(url: string) {

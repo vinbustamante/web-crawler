@@ -7,11 +7,13 @@ import { IUtilService } from "./services/IUtilService";
 import { types as serviceTypes } from "./services/types";
 import { configureRepositories } from "./repositories/ioc";
 import { IProcessService } from "./services/IProcessService";
+import { CrawlController } from "./controller/CrawlController";
 
 const argv: any = yargs
   .usage("Usage: $0 <command> [options]")
   .command("reset-db", "reset database")
   .command("crawl", "start web crawling")
+  .command("add-worker", "add worker process for crawling")
   .demandCommand(1, "action command needed")
   .options({
     w: {
@@ -35,13 +37,17 @@ const queryField = argv.field;
   await configureCommandControllers(container);
 
   const utilService = container.get<IUtilService>(serviceTypes.IUtilService);
+  // @ts-ignore
   const processService = container.get<IProcessService>(
     serviceTypes.IProcessService
   );
   const commandController = utilService.getControllerByCommand(command);
   if (commandController) {
     // todo: port to out process for scalability
-    processService.collect();
+    if (commandController instanceof CrawlController) {
+      // add default slave child for processing the links
+      processService.collect();
+    }
 
     commandController
       .execute({

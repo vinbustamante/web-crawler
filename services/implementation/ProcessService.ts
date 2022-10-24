@@ -40,17 +40,15 @@ export class ProcessService extends BaseService implements IProcessService {
         );
         if (contactInfo && contactInfo.contactNumber) {
           contactInfo.linkId = queueItem.linkId;
-          console.log("******************************");
-          console.log("successfully retrieve: ", contactInfo);
-          console.log("******************************");
           await this._contactService.save(contactInfo);
         }
       } catch (err) {
         console.log(err);
       }
-      setTimeout(() => {
-        this.collect();
-      }, 10);
     }
+    // invoke again
+    setTimeout(() => {
+      this.collect();
+    }, 10);
   }
 }
