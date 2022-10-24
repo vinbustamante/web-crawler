@@ -9,6 +9,8 @@ import { CommandControllerParams } from "types/CommandControllerParams";
 import { IDomainService } from "../services/IDomainService";
 import { IWebBrowserService } from "../services/IWebBrowserService";
 import { ILinkService } from "../services/ILinkService";
+import { Page } from "puppeteer";
+import { ILogService } from "../services/ILogService";
 
 @mapCommand(CommandEnum.crawl)
 @injectable()
@@ -28,23 +30,40 @@ export class CrawlController {
   @inject(serviceTypes.ILinkService)
   private _linkService: ILinkService;
 
+  @inject(serviceTypes.ILogService)
+  private _logService: ILogService;
+
+  private _1hourInSeconds = 3600;
+
   async execute(request: CommandControllerParams) {
     const { queryValue: url } = request;
     const domain = await this._getDomainInfo(url);
     const page = await this._httpService.open(url);
     const self = this;
-    // @ts-ignore
-    return new Promise((resolve, reject) => {
+    return new Promise(() => {
       let lastPageLinkCount = 0;
       (async function loadMore() {
-        // todo: need to optimise not to requery the whole page
+        // todo: need to optimise not to re-query the whole page
         const links = await self._webBrowserService.getLinks(page);
+        console.log("lastPageLinkCount: ", lastPageLinkCount);
         if (links.length !== lastPageLinkCount) {
           lastPageLinkCount = links.length;
           // todo: optimize it by not removing the old link
           await self._linkService.bulkSave(domain.domainId, links);
-
-          // todo: click load more
+          // todo: encapsulate as part of the service
+          await self._clickLoadMoreButton(page);
+          setTimeout(loadMore, 2000);
+        } else {
+          page.close();
+          await self._logService.info(
+            "done processing the page.. sleeping and try again in 1hr"
+          );
+          lastPageLinkCount = -1;
+          // sleep 1hr
+          setTimeout(
+            self.execute.bind(self, request),
+            self._1hourInSeconds * 1000
+          );
         }
       })();
     });
@@ -57,5 +76,13 @@ export class CrawlController {
       domain = await this._domainService.getByName(urlInfo.host);
     }
     return domain;
+  }
+
+  private async _clickLoadMoreButton(page: Page) {
+    try {
+      await page.click("div[class^=LoadMore__Wrapper] button");
+    } catch (err) {
+      this._logService.error(err);
+    }
   }
 }

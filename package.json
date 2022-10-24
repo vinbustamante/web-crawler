@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "crawl": "ts-node server.ts crawl",
+    "worker": "ts-node server.ts add-worker"
   },
   "repository": {
     "type": "git",

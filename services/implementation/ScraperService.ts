@@ -58,6 +58,7 @@ export class ScraperService extends BaseService implements IScraperService {
     return contactDto;
   }
 
+  // @ts-ignore
   private async _saveChildLinks(page: Page, url): Promise<void> {
     try {
       await this._logService.info(`collecting child links from ${url}`);
@@ -65,9 +66,17 @@ export class ScraperService extends BaseService implements IScraperService {
       if (domainInfo && domainInfo.domainId) {
         const urls = await this._webBrowserService.getLinks(page);
         if (urls && urls.length) {
-          await this._logService.info("saving child links");
+          await this._logService.info(
+            `saving child links found ${urls.length}`
+          );
           await this._linkService.bulkSave(domainInfo.domainId, urls);
         }
+
+        // todo: check if the page has a paging, it must be visited each page
+        // check if there is a paging
+        // console.log("************* next page button *****************");
+        // console.log(await page.$('[class^="Paging_redirectPageBtn"]'));
+        // console.log("******************************");
       }
     } catch (err) {
       await this._logService.error(err);
